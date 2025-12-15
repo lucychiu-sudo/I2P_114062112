@@ -33,15 +33,12 @@ class ChatOverlay(UIComponent):
         self._send_callback = send_callback
         self._get_messages = get_messages
 
-        """
-        # TODO
-        # try:
-        #     self._font_msg = pg.font.Font(..., ...)
-        #     self._font_input = pg.font.Font(..., ...)
-        # except Exception:
-        #     self._font_msg = pg.font.SysFont(..., ...)
-        #     self._font_input = pg.font.SysFont(..., ...)
-        """
+        try:
+            self._font_msg = pg.font.Font(font_path, 14)
+            self._font_input = pg.font.Font(font_path, 16)
+        except Exception:
+            self._font_msg = pg.font.SysFont("arial", 14)
+            self._font_input = pg.font.SysFont("arial", 16)
 
     def open(self) -> None:
         if not self.is_open:
@@ -54,45 +51,41 @@ class ChatOverlay(UIComponent):
         self.is_open = False
 
     def _handle_typing(self) -> None:
-        """
-        # TODO TEXT INPUT HANDLING
-        
-        The goal of this section is simple:
-        # Turn keyboard keys into characters that appear inside the chat box.
-
-        ex: 
-        # Letters
         shift = input_manager.key_down(pg.K_LSHIFT) or input_manager.key_down(pg.K_RSHIFT)
+
         for k in range(pg.K_a, pg.K_z + 1):
             if input_manager.key_pressed(k):
                 ch = chr(ord('a') + (k - pg.K_a))
-                self._input_text += (ch.upper() if shift else ch)
+                self._input_text += ch.upper() if shift else ch
 
-        # TODO
-        # Enter to send. You can use the below code, just fill in the blanks.
-        if input_manager.key_pressed(...) or input_manager.key_pressed(...):
+        for k in range(pg.K_0, pg.K_9 + 1):
+            if input_manager.key_pressed(k):
+                self._input_text += chr(ord('0') + (k - pg.K_0))
+
+        if input_manager.key_pressed(pg.K_SPACE):
+            self._input_text += " "
+
+        if input_manager.key_pressed(pg.K_BACKSPACE):
+            self._input_text = self._input_text[:-1]
+
+        # Enter to send
+        if input_manager.key_pressed(pg.K_RETURN) or input_manager.key_pressed(pg.K_KP_ENTER):
             txt = self._input_text.strip()
-            if txt and self._____:
+            if txt and self._send_callback:
                 ok = False
                 try:
-                    ok = self.______(...) <- over here we need to send chat message, what function should we call?
+                    ok = self._send_callback(txt)
                 except Exception:
                     ok = False
                 if ok:
                     self._input_text = ""
-        """
-        pass
 
     def update(self, dt: float) -> None:
         if not self.is_open:
             return
-        """
-        # TODO
-        # Close on Escape
-        # if input_manager.key_pressed(...):
-        #     self.close()
-        #     return
-        """
+        if input_manager.key_pressed(pg.K_ESCAPE):
+            self.close()
+            return
         # Typing
         if self._just_opened:
             self._just_opened = False
@@ -137,11 +130,11 @@ class ChatOverlay(UIComponent):
         bg2.fill((0, 0, 0, 160))
         _ = screen.blit(bg2, (x, box_y))
         # Text
-        # txt = self._input_text
-        # text_surf = self._font_input.____(..., ..., (..., ..., ...)) <- over here we need to RENDER the text, what function should we call?
-        # _ = screen.blit(text_surf, (x + 8, box_y + 4))
+        txt = self._input_text
+        text_surf = self._font_input.render(txt, True, (255, 255, 255))
+        screen.blit(text_surf, (x + 8, box_y + 4))
         # Caret
-        # if self._cursor_visible:
-        #     cx = x + 8 + text_surf.get_width() + 2
-        #     cy = box_y + 6
-        #     pg.draw.rect(screen, (255, 255, 255), pg.Rect(cx, cy, 2, box_h - 12))
+        if self._cursor_visible:
+            cx = x + 8 + text_surf.get_width() + 2
+            cy = box_y + 6
+            pg.draw.rect(screen, (255, 255, 255), pg.Rect(cx, cy, 2, box_h - 12))

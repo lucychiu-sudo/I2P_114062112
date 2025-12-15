@@ -10,14 +10,14 @@ from src.scenes.setting_overlay import SettingOverlay
 from src.scenes.backpack_overlay import BackpackOverlay
 from src.scenes.shop_overlay import ShopOverlay
 from src.interface.components import Button
-# from src.interface.components.chat_overlay import ChatOverlay
+from src.interface.components.chat_overlay import ChatOverlay
 from src.core import GameManager, OnlineManager
 from src.utils import load_tmx, Position, Direction, GameSettings, PositionCamera, Teleport
 from src.utils import Logger, PositionCamera, GameSettings, Position
 from src.core.services import sound_manager
 from src.core.services import scene_manager, sound_manager, input_manager
 from src.sprites import Sprite,Animation
-from typing import override
+from typing import override, Dict, Tuple
 from src.scenes.catch_scene import CatchScene
 from src.entities.other_player import OtherPlayer
 class GameScene(Scene):
@@ -79,12 +79,16 @@ class GameScene(Scene):
         # Online Manager
         if GameSettings.IS_ONLINE:
             self.online_manager = OnlineManager()
+            self.chat_overlay = ChatOverlay(
+                send_callback=self.online_manager.send_chat,
+                get_messages=self.online_manager.get_recent_chat
+            )
         else:
             self.online_manager = None
         self.online_players: dict[int, OtherPlayer] = {}
         self.sprite_online = Sprite("ingame_ui/options1.png", (GameSettings.TILE_SIZE, GameSettings.TILE_SIZE))
-        #self._chat_bubbles: Dict[int, Tuple[str, str]] = {}
-        #self._last_chat_id_seen = 0
+        self._chat_bubbles: Dict[int, Tuple[str, str]] = {}
+        self._last_chat_id_seen = 0
         
         #navigation
         places = {
@@ -179,7 +183,8 @@ class GameScene(Scene):
                 
         # Update player and other data
         if self.game_manager.player:
-            self.game_manager.player.update(dt)
+            if not (self.chat_overlay and self.chat_overlay.is_open):
+                self.game_manager.player.update(dt)
         for enemy in self.game_manager.current_enemy_trainers:
             enemy.update(dt)
         for shopnpc in self.game_manager.current_shop_npc:
@@ -187,7 +192,7 @@ class GameScene(Scene):
             
         for npc in self.game_manager.current_enemy_trainers:
             if npc.detected:
-                if input_manager.key_down(pg.K_e):
+                if input_manager.key_down(pg.K_r):
                     battle = BattleScene(self.game_manager.bag._monsters_data,self.game_manager.bag._items_data)
                     scene_manager.set_scene_instance(battle)
                 
@@ -225,6 +230,34 @@ class GameScene(Scene):
         
         # Update others
         self.game_manager.bag.update(dt)
+        
+        #TODO: UPDATE CHAT OVERLAY:
+
+        if self.chat_overlay:
+            if input_manager.key_pressed(pg.K_e):
+                self.chat_overlay.open()
+            self.chat_overlay.update(dt)
+        # Update chat bubbles from recent messages
+
+        # This part's for the chatting feature, we've made it for you.
+        if self.online_manager:
+            try:
+                msgs = self.online_manager.get_recent_chat(50)
+                max_id = self._last_chat_id_seen
+                now = time.monotonic()
+                for m in msgs:
+                    mid = int(m.get("id", 0))
+                    if mid <= self._last_chat_id_seen:
+                        continue
+                    sender = int(m.get("from", -1))
+                    text = str(m.get("text", ""))
+                    if sender >= 0 and text:
+                        self._chat_bubbles[sender] = (text, now + 5.0)
+                    if mid > max_id:
+                        max_id = mid
+                self._last_chat_id_seen = max_id
+            except Exception:
+                pass
         
         if self.game_manager.player is not None and self.online_manager is not None:
             _ = self.online_manager.update(
@@ -297,7 +330,62 @@ class GameScene(Scene):
                 self.start_navigation(self.pending_navigation_target)
                 self.pending_navigation_target = None'''
             
-    
+    def _draw_chat_bubbles(self, screen: pg.Surface, camera: PositionCamera) -> None:
+        now = time.monotonic()
+
+        expired = [pid for pid, (_, ts) in self._chat_bubbles.items() if ts <= now]
+        for pid in expired:
+            self._chat_bubbles.pop(pid, None)
+
+        if not self._chat_bubbles:
+            return
+
+        font = pg.font.SysFont("arial", 14)
+
+        # local player
+        if self.game_manager.player:
+            local_pid = self.online_manager.player_id
+            if local_pid in self._chat_bubbles:
+                text, _ = self._chat_bubbles[local_pid]
+                self._draw_chat_bubble_for_pos(
+                    screen,
+                    camera,
+                    self.game_manager.player.position,
+                    text,
+                    font
+                )
+
+        # other players
+        players = self.online_manager.get_list_players()
+        for p in players:
+            pid = p["id"]
+            if pid not in self._chat_bubbles:
+                continue
+            if p["map"] != self.game_manager.current_map.path_name:
+                continue
+
+            world_pos = Position(p["x"], p["y"])
+            text, _ = self._chat_bubbles[pid]
+            self._draw_chat_bubble_for_pos(screen, camera, world_pos, text, font)
+
+    def _draw_chat_bubble_for_pos(self,screen: pg.Surface,camera: PositionCamera,
+                                world_pos: Position,text: str,font: pg.font.Font):
+        screen_pos = camera.transform_position_as_position(world_pos)
+        text_surf = font.render(text, True, (0, 0, 0))
+
+        padding = 6
+        w = text_surf.get_width() + padding * 2
+        h = text_surf.get_height() + padding * 2
+
+        bubble_x = screen_pos.x - w // 2
+        bubble_y = screen_pos.y - 40
+
+        bg = pg.Surface((w, h), pg.SRCALPHA)
+        bg.fill((255, 255, 255, 230))
+
+        screen.blit(bg, (bubble_x, bubble_y))
+        screen.blit(text_surf, (bubble_x + padding, bubble_y + padding))
+
     
     @override
     def draw(self, screen: pg.Surface):    
@@ -367,21 +455,20 @@ class GameScene(Scene):
             shopnpc.draw(screen, camera)
             
         self.game_manager.bag.draw(screen)
-        '''
-        if self.online_manager and self.game_manager.player:
-            list_online = self.online_manager.get_list_players()
-            for player in list_online:
-                if player["map"] == self.game_manager.current_map.path_name:
-                    cam = self.game_manager.player.camera
-                    pos = cam.transform_position_as_position(Position(player["x"], player["y"]))
-                    self.sprite_online.update_pos(pos)
-                    self.sprite_online.draw(screen)'''
+        
+        if self.chat_overlay:
+            self.chat_overlay.draw(screen)
                     
         if self.online_manager and self.game_manager.player:
             for player in self.online_players.values():
                 # 只顯示在當前地圖的玩家
                 if player.map == self.game_manager.current_map.path_name:
                     player.draw(screen, self.game_manager.player.camera)
+                    
+        # try:
+            #     self._draw_chat_bubbles(...)
+            # except Exception:
+            #     pass
                     
         if self.on_bush:
             icon_x = self.game_manager.player.position.x - camera.x+5
