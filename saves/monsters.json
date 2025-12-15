@@ -1,0 +1,19 @@
+[
+    { "name": "Pikachu",   "hp": 100, "max_hp": 100, "level": 1, "sprite_path": "menu_sprites/menusprite1.png" },
+    { "name": "Charizard", "hp": 200, "max_hp": 200, "level": 1, "sprite_path": "menu_sprites/menusprite2.png" },
+    { "name": "Blastoise", "hp": 180, "max_hp": 180, "level": 1, "sprite_path": "menu_sprites/menusprite3.png" },
+    { "name": "Venusaur",  "hp": 160, "max_hp": 160, "level": 1, "sprite_path": "menu_sprites/menusprite4.png" },
+    { "name": "Gengar",    "hp": 140, "max_hp": 140, "level": 1, "sprite_path": "menu_sprites/menusprite5.png" },
+    { "name": "Dragonite", "hp": 220, "max_hp": 220, "level": 1, "sprite_path": "menu_sprites/menusprite6.png" },
+    { "name": "Mouse",     "hp": 240, "max_hp": 240, "level": 1, "sprite_path": "menu_sprites/menusprite7.png" },
+    { "name": "FireMouse", "hp": 280, "max_hp": 280, "level": 1, "sprite_path": "menu_sprites/menusprite8.png" },
+    { "name": "GiantMouse", "hp": 300, "max_hp": 300, "level": 1, "sprite_path": "menu_sprites/menusprite9.png" },
+    { "name": "PurpleMouse", "hp": 150, "max_hp": 150, "level": 1, "sprite_path": "menu_sprites/menusprite10.png" },
+    { "name": "PurpleSnake", "hp": 200, "max_hp": 200, "level": 1, "sprite_path": "menu_sprites/menusprite11.png" },
+    { "name": "Dophin",      "hp": 220, "max_hp": 220, "level": 1, "sprite_path": "menu_sprites/menusprite12.png" },
+    { "name": "BigDophin",   "hp": 230, "max_hp": 230, "level": 1, "sprite_path": "menu_sprites/menusprite13.png" },
+    { "name": "LargeDophin", "hp": 250, "max_hp": 250, "level": 1, "sprite_path": "menu_sprites/menusprite14.png" },
+    { "name": "Bug",         "hp": 100, "max_hp": 100, "level": 1, "sprite_path": "menu_sprites/menusprite15.png" },
+    { "name": "UglyBug",     "hp": 130, "max_hp": 130, "level": 1, "sprite_path": "menu_sprites/menusprite16.png" }
+
+]
