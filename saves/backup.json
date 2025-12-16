@@ -4,15 +4,17 @@
       "path": "map.tmx",
       "enemy_trainers": [
         { "x": 24, "y": 29, "classification": "stationary", "facing": "DOWN", "max_tiles": 2 },
-        { "x": 54, "y": 16, "classification": "stationary", "facing": "UP", "max_tiles": 2 },
+        { "x": 54, "y": 20, "classification": "stationary", "facing": "UP", "max_tiles": 2 },
         { "x": 31, "y": 31, "classification": "stationary", "facing": "UP", "max_tiles": 2 }
+
       ],
       "shop_npc": [
         { "x": 20, "y": 30, "classification": "stationary","facing": "DOWN", "max_tiles": 2 }
       ],
       "teleport": [
         { "x": 24, "y": 23, "destination": "gym.tmx" },
-        { "x": 16, "y": 28, "destination": "home.tmx" }
+        { "x": 16, "y": 28, "destination": "home.tmx" },
+        { "x": 54, "y": 14, "destination": "god.tmx" }
       ],
       "player": {
         "x": 16,
@@ -48,6 +50,20 @@
       "shop_npc": [],
       "player": {
         "x": 12,
+        "y": 13
+      }
+    },
+    {
+      "path": "god.tmx",
+      "teleport": [
+        { "x": 16, "y": 14, "destination": "map.tmx" }
+        
+      ],
+      "roaming_mobs": [],
+      "enemy_trainers": [],
+      "shop_npc": [],
+      "player": {
+        "x": 16,
         "y": 13
       }
     }

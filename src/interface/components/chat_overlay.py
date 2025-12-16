@@ -105,7 +105,7 @@ class ChatOverlay(UIComponent):
         y = sh - 100
         # Draw background for messages
         if msgs:
-            container_w = max(100, int((sw - 20) * 0.6))
+            container_w = max(100, int((sw - 20) * 0.4))
             bg = pg.Surface((container_w, 90), pg.SRCALPHA)
             bg.fill((0, 0, 0, 90 if self.is_open else 60))
             _ = screen.blit(bg, (x, y))

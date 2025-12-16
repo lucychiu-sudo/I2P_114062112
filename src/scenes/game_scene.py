@@ -94,7 +94,7 @@ class GameScene(Scene):
         places = {
             "Gym": Position(24,25),
             "Home": Position(16,30),
-            "House":Position(54,15)
+            "House":Position(54,16)
         }
         self.arrow_image = pg.image.load("assets/images/UI/raw/UI_Flat_IconArrow01a.png").convert_alpha()
         self.arrow_image = pg.transform.scale(self.arrow_image, (25, 25))
@@ -432,6 +432,8 @@ class GameScene(Scene):
             elif self.game_manager.current_map_key=="home.tmx":
                 self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.2)
             elif self.game_manager.current_map_key=="gym.tmx":
+                self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.2)
+            elif self.game_manager.current_map_key=="god.tmx":
                 self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.2)
             
             player_pos = self.game_manager.player.position

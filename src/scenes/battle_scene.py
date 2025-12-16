@@ -95,9 +95,7 @@ class BattleScene(Scene):
             elif item["name"]=="Coins":
                 self.coins = item
         
-        
-        
-        
+        1
         
         #字體和偵測
         self.turn=True
