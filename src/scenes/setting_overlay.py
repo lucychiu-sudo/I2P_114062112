@@ -29,6 +29,7 @@ class SettingOverlay(Scene):
         #位置
         px = GameSettings.SCREEN_WIDTH // 2
         py = GameSettings.SCREEN_HEIGHT // 2
+        
 
         #返回按鈕
         self.back_button = Button(
@@ -42,7 +43,7 @@ class SettingOverlay(Scene):
         self.save_button = Button(
             "UI/button_save.png", 
             "UI/button_save_hover.png",
-            px-100, py +20,    
+            px-35, py+100,    
             70, 70,
             self.save_game  
         )
@@ -50,14 +51,14 @@ class SettingOverlay(Scene):
         self.load_button = Button(
             "UI/button_load.png", 
             "UI/button_load_hover.png",
-            px+100, py +20,     
+            px+100-35, py+100,     
             70, 70,
             self.load_game  
         )
         self.menu_button = Button(
             "UI/button_back.png", 
             "UI/button_back_hover.png",
-            px-200, py +20,    
+            px-100-35, py+100,    
             70, 70,
             lambda: scene_manager.change_scene("menu")
         )
@@ -155,6 +156,9 @@ class SettingOverlay(Scene):
         font_small=pg.font.Font(None, 35)
         text1=font_small.render("Volume:",True, (30, 30, 30))
         screen.blit(text1,(window_x + 80,window_y+130))
+        font_tiny=pg.font.Font(None, 25)
+        text2=font_tiny.render("menu",True, (30, 30, 30))
+        screen.blit(text2,(window_x + 153,window_y+400))
         
         # 畫返回按鈕
         self.back_button.draw(screen)

@@ -12,6 +12,11 @@
           "x": 16,
           "y": 28,
           "destination": "home.tmx"
+        },
+        {
+          "x": 54,
+          "y": 14,
+          "destination": "god.tmx"
         }
       ],
       "player": {
@@ -28,7 +33,7 @@
         },
         {
           "x": 54.0,
-          "y": 16.0,
+          "y": 20.0,
           "classification": "stationary",
           "facing": "UP",
           "max_tiles": 2
@@ -108,6 +113,22 @@
       ],
       "player": {
         "x": 12,
+        "y": 13
+      },
+      "enemy_trainers": [],
+      "shop_npc": []
+    },
+    {
+      "path": "god.tmx",
+      "teleport": [
+        {
+          "x": 16,
+          "y": 14,
+          "destination": "map.tmx"
+        }
+      ],
+      "player": {
+        "x": 16,
         "y": 13
       },
       "enemy_trainers": [],

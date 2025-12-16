@@ -33,6 +33,7 @@ class Map:
         # Prebake the collision map
         self._collision_map = self._create_collision_map()
         self._bush_map = self._create_bush_map()
+        self._god_map = self._create_god_map()
         
     
         
@@ -98,6 +99,13 @@ class Map:
                 return True
         return False
         
+    def check_god(self, pos: Position) -> bool:
+        player_rect = pg.Rect(pos.x, pos.y, GameSettings.TILE_SIZE, GameSettings.TILE_SIZE)
+        for r in self._god_map:
+            if player_rect.colliderect(r):
+                return True
+        return False
+        
         
     def check_teleport(self, pos: Position) -> Teleport | None:
         '''[TODO HACKATHON 6] 
@@ -154,6 +162,22 @@ class Map:
         rects = []
         for layer in self.tmxdata.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer) and ("PokemonBush" in layer.name):
+                for x, y, gid in layer:
+                    if gid != 0:
+                        rects.append(
+                            pg.Rect(
+                                x * GameSettings.TILE_SIZE,
+                                y * GameSettings.TILE_SIZE,
+                                GameSettings.TILE_SIZE,
+                                GameSettings.TILE_SIZE
+                            )
+                    )
+        return rects
+    
+    def _create_god_map(self) -> list[pg.Rect]:
+        rects = []
+        for layer in self.tmxdata.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer) and ("god" in layer.name):
                 for x, y, gid in layer:
                     if gid != 0:
                         rects.append(

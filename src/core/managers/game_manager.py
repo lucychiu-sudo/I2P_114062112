@@ -106,9 +106,12 @@ class GameManager:
     def check_bush(self, rect: pg.Rect) -> bool:
         if self.maps[self.current_map_key].check_bush(rect):
             return True
-        
         return False
     
+    def check_god(self, rect: pg.Rect) -> bool:
+        if self.maps[self.current_map_key].check_god(rect):
+            return True
+        return False
     
     def save(self, path: str) -> None:
         try:

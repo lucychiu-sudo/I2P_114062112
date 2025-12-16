@@ -7,7 +7,13 @@ class Checkbox:
         self.rect = pg.Rect(x, y, size, size)
         self.checked = checked
         self.on_toggle = on_toggle
-        self.last_mouse_down = False 
+        self.last_mouse_down = False
+        
+        self.img_checked = pg.image.load("assets/images/UI/raw/UI_Flat_ToggleRightOn01a.png").convert_alpha()
+        self.img_unchecked = pg.image.load("assets/images/UI/raw/UI_Flat_ToggleRightOff01a.png").convert_alpha()
+
+        self.img_checked = pg.transform.scale(self.img_checked, (size, size))
+        self.img_unchecked = pg.transform.scale(self.img_unchecked, (size, size)) 
 
     def update(self):
         mouse_down = input_manager.mouse_pressed(1)
@@ -20,6 +26,7 @@ class Checkbox:
         
         
     def draw(self, screen: pg.Surface):
-        color = (50, 200, 50) if self.checked else (200, 50, 50)
-        pg.draw.rect(screen, color, self.rect)
-        pg.draw.rect(screen, (0, 0, 0), self.rect, 2)
+        if self.checked:
+            screen.blit(self.img_checked, self.rect)
+        else:
+            screen.blit(self.img_unchecked, self.rect)

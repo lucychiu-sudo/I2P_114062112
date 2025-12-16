@@ -40,6 +40,11 @@ class GameScene(Scene):
         self.bush_icon = pg.image.load("assets/images/exclamation.png").convert_alpha()
         self.bush_icon = pg.transform.scale(self.bush_icon, (32, 32))
 
+        #遇到god的提醒圖片
+        self.on_god=False
+        self.god_icon = pg.image.load("assets/images/ingame_ui/baricon3.png").convert_alpha()
+        self.god_icon = pg.transform.scale(self.god_icon, (32, 32))
+        
         #傳送
         self.navigation_path = []
         self.is_navigating = False
@@ -227,6 +232,17 @@ class GameScene(Scene):
                 scene_manager.set_scene_instance(catch)
         else:
             self.on_bush=False
+        
+        if self.game_manager.check_god(pg.Rect(self.game_manager.player.position.x, 
+                                                self.game_manager.player.position.y, 
+                                                GameSettings.TILE_SIZE, 
+                                                GameSettings.TILE_SIZE)):
+            self.on_god=True
+            if input_manager.key_down(pg.K_e):
+                catch = CatchScene(self.game_manager)
+                scene_manager.set_scene_instance(catch)
+        else:
+            self.on_god=False
         
         # Update others
         self.game_manager.bag.update(dt)
@@ -434,7 +450,7 @@ class GameScene(Scene):
             elif self.game_manager.current_map_key=="gym.tmx":
                 self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.2)
             elif self.game_manager.current_map_key=="god.tmx":
-                self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.2)
+                self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.1)
             
             player_pos = self.game_manager.player.position
             map_obj = self.game_manager.current_map
@@ -477,6 +493,13 @@ class GameScene(Scene):
             icon_y = self.game_manager.player.position.y - camera.y - 20 
             screen.blit(self.bush_icon, (icon_x, icon_y))
             screen.blit(self.font.render("Press Q to catch monster!", True, (255,55,55)), (self.game_manager.player.position.x - camera.x, self.game_manager.player.position.y - camera.y+80 ))
+
+
+        if self.on_god:
+            icon_x = self.game_manager.player.position.x - camera.x+5
+            icon_y = self.game_manager.player.position.y - camera.y - 20 
+            screen.blit(self.god_icon, (icon_x, icon_y))
+            screen.blit(self.font.render("Press E", True, (255,55,55)), (self.game_manager.player.position.x - camera.x, self.game_manager.player.position.y - camera.y+80 ))
 
                     
         for npc in self.game_manager.current_enemy_trainers:

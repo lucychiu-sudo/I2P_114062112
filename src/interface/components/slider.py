@@ -6,18 +6,22 @@ class Slider:
     def __init__(self, x: int, y: int, width: int, height: int,
         value: float, on_change: Callable[[float], None] = None):
         self.rect = pg.Rect(x, y, width, height)         
-        self.handle_width = 20                           
+        self.handle_width = 15                          
         self.value = max(0.0, min(1.0, value))          
         self.handle_rect = pg.Rect(
             x + int(self.value * (width - self.handle_width)),
-            y,
+            y-height*0.1,
             self.handle_width,
-            height
+            height*1.2
         )
         self.dragging = False
         self.on_change = on_change
         self.offset_x = 0  
         self.font = pg.font.Font(None, self.handle_width+10)
+        self.handle_image = pg.image.load("assets/images/UI/raw/UI_Flat_Handle03a.png").convert_alpha()
+        self.handle_image = pg.transform.scale(self.handle_image, (self.handle_width,height*1.2))
+        self.bar_image = pg.image.load("assets/images/UI/raw/UI_Flat_Bar12a.png").convert_alpha()
+        self.bar_image = pg.transform.scale(self.bar_image, (width,height))
         
     def update(self):
         mouse_x, mouse_y = input_manager.mouse_pos
@@ -51,12 +55,13 @@ class Slider:
             self.value = (self.handle_rect.x - self.rect.x) / (self.rect.width - self.handle_width)
             if self.on_change:
                 self.on_change(self.value)
+            
 
     def draw(self, screen: pg.Surface):
         #畫滑軌
-        pg.draw.rect(screen, (180, 180, 180), self.rect)
+        screen.blit(self.bar_image, self.rect)
         #畫handle
-        pg.draw.rect(screen, (100, 100, 255), self.handle_rect)
+        screen.blit(self.handle_image, self.handle_rect)
         percent = int(self.value * 100)
         text = self.font.render(str(percent)+"%", True, (30, 30, 30))
         screen.blit(text, (self.rect.right + 10, self.rect.y))
