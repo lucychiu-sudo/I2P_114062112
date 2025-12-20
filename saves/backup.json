@@ -56,15 +56,15 @@
     {
       "path": "god.tmx",
       "teleport": [
-        { "x": 16, "y": 14, "destination": "map.tmx" }
+        { "x": 17, "y": 15, "destination": "map.tmx" }
         
       ],
       "roaming_mobs": [],
       "enemy_trainers": [],
       "shop_npc": [],
       "player": {
-        "x": 16,
-        "y": 13
+        "x": 17,
+        "y": 14
       }
     }
   ],

@@ -476,7 +476,7 @@ class GameScene(Scene):
             elif self.game_manager.current_map_key=="gym.tmx":
                 self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.2)
             elif self.game_manager.current_map_key=="god.tmx":
-                self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.102)
+                self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.12)
             
             player_pos = self.game_manager.player.position
             map_obj = self.game_manager.current_map
