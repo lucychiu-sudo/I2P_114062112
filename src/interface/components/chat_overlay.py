@@ -123,7 +123,7 @@ class ChatOverlay(UIComponent):
             return
         # Input box
         box_h = 28
-        box_w = max(100, int((sw - 20) * 0.6))
+        box_w = max(100, int((sw - 20) * 0.4))
         box_y = sh - box_h - 6
         # Background box
         bg2 = pg.Surface((box_w, box_h), pg.SRCALPHA)
