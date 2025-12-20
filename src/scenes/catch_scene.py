@@ -141,9 +141,11 @@ class CatchScene(Scene):
         
         
     def spawn_sparkles(self):
+        base_pos = pg.Vector2(self.original_ball_pos) + pg.Vector2(30, 30)
+
         for _ in range(12):
             self.sparkles.append({
-                "pos": self.ball_pos.copy(),
+                "pos": base_pos.copy(),
                 "vel": pg.Vector2(random.uniform(-150,150), random.uniform(-200,-50)),
                 "life": 0.5
             })
@@ -164,6 +166,7 @@ class CatchScene(Scene):
         self.game_manager.bag._monsters_data.append(self.monster)
         sound_manager.pause_all()
         sound_manager.play_sound("RBY 119 Captured a Pokemon!.ogg")
+        sound_manager.resume_all()
         for item in self.game_manager.bag._items_data:
             if item["name"]=="Pokeball":
                 item["count"]-=1
@@ -207,20 +210,24 @@ class CatchScene(Scene):
             self.animation.draw(screen, None)
         
         if self.ball_visible:
-            screen.blit(self.ball_img, self.ball_pos)
             
-        if self.state == "glow":
-            ring = pg.Surface((200, 200), pg.SRCALPHA)
-            pg.draw.circle(
-                ring,
-                (255, 255, 255, int(self.ring_alpha)),
-                (100, 100),
-                int(self.ring_radius),
-                3
-            )
-            screen.blit(ring, self.ball_pos - pg.Vector2(100, 100))
-            for s in self.sparkles:
-                pg.draw.circle(screen, (250,250,200), s["pos"], 3)
-            
+            if self.state == "glow":
+                ring = pg.Surface((200, 200), pg.SRCALPHA)
+                pg.draw.circle(
+                    ring,
+                    (255, 255, 255, int(self.ring_alpha)),
+                    (100, 100),
+                    int(self.ring_radius),
+                    3
+                )
+                
+                
+                screen.blit(self.ball_img, self.ball_pos)
+                screen.blit(ring, self.ball_pos - pg.Vector2(100, 100))
+                for s in self.sparkles:
+                    pg.draw.circle(screen, (200,0,200), s["pos"], 3)
+                
+            else:
+                screen.blit(self.ball_img, self.ball_pos)
         
 
