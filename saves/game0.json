@@ -15,21 +15,6 @@
         },
         {
           "x": 42,
-          "y": 28,
-          "destination": "god.tmx"
-        },
-        {
-          "x": 43,
-          "y": 28,
-          "destination": "god.tmx"
-        },
-        {
-          "x": 42,
-          "y": 27,
-          "destination": "god.tmx"
-        },
-        {
-          "x": 43,
           "y": 27,
           "destination": "god.tmx"
         }
@@ -127,8 +112,8 @@
         }
       ],
       "player": {
-        "x": 12.0,
-        "y": 14.0
+        "x": 12,
+        "y": 13
       },
       "enemy_trainers": [],
       "shop_npc": []
@@ -152,14 +137,14 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 27.61834661050729,
-    "y": 30.117270215753987
+    "x": 27.265616449178545,
+    "y": 30.20218845788047
   },
   "bag": {
     "monsters": [
       {
         "name": "Pikachu",
-        "hp": 85,
+        "hp": 65,
         "max_hp": 100,
         "level": 9,
         "attack": 20,
@@ -188,14 +173,64 @@
         "sprite_path": "menu_sprites/menusprite3.png"
       },
       {
-        "name": "Gengar",
-        "hp": 140,
-        "max_hp": 140,
-        "level": 21,
+        "name": "PurpleMouse",
+        "hp": 150,
+        "max_hp": 150,
+        "level": 9,
         "attack": 20,
         "defense": 5,
         "element": "grass",
-        "sprite_path": "menu_sprites/menusprite5.png"
+        "sprite_path": "menu_sprites/menusprite10.png"
+      },
+      {
+        "name": "UglyBug",
+        "hp": 130,
+        "max_hp": 130,
+        "level": 15,
+        "attack": 20,
+        "defense": 5,
+        "element": "grass",
+        "sprite_path": "menu_sprites/menusprite16.png"
+      },
+      {
+        "name": "BigDophin",
+        "hp": 230,
+        "max_hp": 230,
+        "level": 19,
+        "attack": 20,
+        "defense": 5,
+        "element": "water",
+        "sprite_path": "menu_sprites/menusprite13.png"
+      },
+      {
+        "name": "LargeDophin",
+        "hp": 250,
+        "max_hp": 250,
+        "level": 20,
+        "attack": 20,
+        "defense": 5,
+        "element": "water",
+        "sprite_path": "menu_sprites/menusprite14.png"
+      },
+      {
+        "name": "Bug",
+        "hp": 100,
+        "max_hp": 100,
+        "level": 17,
+        "attack": 20,
+        "defense": 5,
+        "element": "grass",
+        "sprite_path": "menu_sprites/menusprite15.png"
+      },
+      {
+        "name": "Mouse",
+        "hp": 240,
+        "max_hp": 240,
+        "level": 15,
+        "attack": 20,
+        "defense": 5,
+        "element": "fire",
+        "sprite_path": "menu_sprites/menusprite7.png"
       }
     ],
     "items": [
@@ -225,7 +260,7 @@
       },
       {
         "name": "Pokeball",
-        "count": 9,
+        "count": 4,
         "price": 50,
         "sprite_path": "ingame_ui/ball.png"
       }

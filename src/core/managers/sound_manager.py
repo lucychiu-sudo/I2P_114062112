@@ -8,6 +8,7 @@ class SoundManager:
         self.current_bgm = None
         self.bgm_volume = GameSettings.AUDIO_VOLUME   # 0~1
         self.bgm_enabled = GameSettings.BGM_ENABLED
+        
 
     def play_bgm(self, filepath: str):
         if self.current_bgm:
@@ -52,7 +53,6 @@ class SoundManager:
     def play_sound(self, filepath):
         if not self.bgm_enabled:
             return
-        
         sound = load_sound(filepath)
         sound.set_volume(self.bgm_volume)
         self.pause_all()

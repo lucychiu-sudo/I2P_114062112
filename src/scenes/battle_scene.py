@@ -67,10 +67,18 @@ class BattleScene(Scene):
         
         self.big_enemy_attack_img_path=self.big_enemy_img_path.replace(".png","_attack.png")
         self.bid_enemy_attack_anim=Animation(self.big_enemy_attack_img_path,["attack"],4,(300,300))
-        self.bid_enemy_attack_anim.rect.x,self.bid_enemy_attack_anim.rect.y=self.enemy_pos
+        self.bid_enemy_attack_anim.rect.topleft=self.enemy_pos
         self.enemy_anim_finished = False
         self.enemy_hit_timer = 1.0
-        
+        if self.enemy["element"]=="grass":
+            self.enemy_attack_power_anim_path = "attack/attack7.png"
+        elif self.enemy["element"]=="water":
+            self.enemy_attack_power_anim_path = "attack/attack3.png"
+        else:
+            self.enemy_attack_power_anim_path = "attack/attack4.png"
+        self.enemy_attack_power_anim = Animation(self.enemy_attack_power_anim_path,["attack"],4,(300,300))
+        self.enemy_attack_power_anim.rect.topleft = (220,260)
+        self.enemy_attack_power_anim_finished = False
         
         #怪獸資料
         for i in range(len(self.monsters)-1):
@@ -93,7 +101,22 @@ class BattleScene(Scene):
             elif item["name"]=="Coins":
                 self.coins = item
         
+        #heal animation
+        self.heal_animation_path = "attack/attack6.png"
+        self.heal_anim = Animation(self.heal_animation_path,["heal"],4,(300,300))
+        self.heal_anim.rect.x,self.heal_anim.rect.y = 300,0
+        self.heal_anim_finished = False
         
+        #attack animation
+        if self.player_monster["element"]=="grass":
+            self.attack_animation_path = "attack/attack7.png"
+        elif self.player_monster["element"]=="water":
+            self.attack_animation_path = "attack/attack3.png"
+        else:
+            self.attack_animation_path = "attack/attack4.png"
+        self.attack_anim = Animation(self.attack_animation_path,["attack"],4,(300,300))
+        self.attack_anim.rect.topleft = self.enemy_pos
+        self.attack_anim_finished = False
         
         #字體和偵測
         self.turn=True
@@ -166,6 +189,7 @@ class BattleScene(Scene):
         
     @override
     def enter(self) -> None:
+        sound_manager.stop_all_sounds()
         sound_manager.play_bgm("RBY 149 Victory Road.ogg")
         pass
     
@@ -180,6 +204,13 @@ class BattleScene(Scene):
         if self.current_monster_index >= len(self.monsters):
             self.current_monster_index = 0  #循環回第一隻
         self.player_monster = self.monsters[self.current_monster_index]
+        if self.player_monster["element"]=="grass":
+            self.attack_animation_path = "attack/attack7.png"
+        elif self.player_monster["element"]=="water":
+            self.attack_animation_path = "attack/attack3.png"
+        else:
+            self.attack_animation_path = "attack/attack4.png"
+        self.attack_anim = Animation(self.attack_animation_path,["attack"],4,(300,300))
         #self.battle_potion_overlay = BattlePotionOverlay(self.attack_potion,self.heal_potion,self.defense_potion,self.player_monster)
         
     #用來檢查有沒有屬性加乘
@@ -231,9 +262,9 @@ class BattleScene(Scene):
                 self.evolution = True
                 self.evolution_text = f"{old_name} has evolute to {self.player_monster['name']}"
             return
-        #進入下一個狀態，敵人震動，設好震動時間
-        self.state = "enemy_hit"      
-        self.enemy_hit_timer = 1.0
+        #進入下一個狀態
+        self.state = "player_attack"      
+        
         
         
     '''玩家逃跑'''
@@ -268,7 +299,7 @@ class BattleScene(Scene):
         if self.heal_potion["count"]>0 and self.player_monster["hp"]<self.player_monster["max_hp"]:
             self.player_monster["hp"] =min(self.player_monster["max_hp"], self.player_monster["hp"]+30)
             self.heal_potion["count"]-=1
-            self.show_message(f"hp +30")
+            self.state ="heal"
     
     '''玩家震動'''
     def player_shake(self):
@@ -303,7 +334,10 @@ class BattleScene(Scene):
                 
         #玩家決定要幹嘛
         if self.state=="player_turn":
-            
+            self.attack_anim.reset()   
+            self.attack_anim_finished = False
+            self.heal_anim.reset()   
+            self.heal_anim_finished = False
             self.turn=True #是玩家回合
             self.attack_button.update(dt) 
             self.run_button.update(dt)
@@ -312,14 +346,52 @@ class BattleScene(Scene):
             self.attack_potion_button.update(dt)
             self.heal_potion_button.update(dt)
             self.bid_enemy_idle_anim.update(dt)
-            
+            return
+        
+        elif self.state =="heal":
+            self.turn=True
+            self.heal_anim.update(dt)
+
+            #計算當前動畫幀
+            #(以播放時常//週期)*一周期的幀數
+            current_frame = int((self.heal_anim.accumulator / self.heal_anim.loop) *
+                                self.heal_anim.n_keyframes)
+
+            #如果動畫達到最後一幀，就認為播放完成
+            if current_frame >= self.heal_anim.n_keyframes - 1:
+                self.heal_anim_finished = True
+
+            #播完動畫之後，玩家震動
+            if self.heal_anim_finished:
+                self.state = "player_turn"
+            return
+        
+        if self.state == "player_attack":
+            self.turn=True
+            self.attack_anim.update(dt)
+
+            #計算當前動畫幀
+            #(以播放時常//週期)*一周期的幀數
+            current_frame = int((self.attack_anim.accumulator / self.attack_anim.loop) *
+                                self.attack_anim.n_keyframes)
+
+            #如果動畫達到最後一幀，就認為播放完成
+            if current_frame >= self.attack_anim.n_keyframes - 1:
+                self.attack_anim_finished = True
+
+            #播完動畫之後，玩家震動
+            if self.attack_anim_finished:
+                self.state = "enemy_hit"
+                self.enemy_hit_timer = 1.0
             return
         
         #敵人準備做攻擊動畫
         elif self.state == "enemy_prepare":
             self.turn=False
-            self.bid_enemy_attack_anim.reset()   
+            self.bid_enemy_attack_anim.reset()
             self.enemy_anim_finished = False
+            self.enemy_attack_power_anim.reset()
+            self.enemy_attack_power_anim_finished = False
             self.state = "enemy_anim"
             return
 
@@ -327,15 +399,20 @@ class BattleScene(Scene):
         elif self.state == "enemy_anim":
             self.turn=False
             self.bid_enemy_attack_anim.update(dt)
+            self.enemy_attack_power_anim.update(dt)
 
             #計算當前動畫幀
             #(以播放時常//週期)*一周期的幀數
             current_frame = int((self.bid_enemy_attack_anim.accumulator / self.bid_enemy_attack_anim.loop) *
                                 self.bid_enemy_attack_anim.n_keyframes)
+            attack_current_frame = int((self.enemy_attack_power_anim.accumulator / self.enemy_attack_power_anim.loop) *
+                                self.enemy_attack_power_anim.n_keyframes)
 
             #如果動畫達到最後一幀，就認為播放完成
             if current_frame >= self.bid_enemy_attack_anim.n_keyframes - 1:
                 self.enemy_anim_finished = True
+            if attack_current_frame >= self.enemy_attack_power_anim.n_keyframes - 1:
+                self.enemy_attack_power_anim_finished = True
 
             #播完動畫之後，玩家震動
             if self.enemy_anim_finished:
@@ -417,9 +494,10 @@ class BattleScene(Scene):
         screen.blit(enemy_img, (card_x + 15, card_y-10))
         
         #敵人大圖
-        if self.state in ["enemy_anim", "enemy_prepare", "enemy_hit"]:
+        if self.state in ["enemy_anim"]:
             self.bid_enemy_attack_anim.rect.topleft = self.enemy_pos
             self.bid_enemy_attack_anim.draw(screen, None)
+            self.enemy_attack_power_anim.draw(screen, None)
         else:
             #原本的大圖
             self.bid_enemy_idle_anim.rect.topleft = self.enemy_pos
@@ -462,10 +540,8 @@ class BattleScene(Scene):
         card_bg_image = pg.transform.scale(card_bg_image, (370, 70))
         card_x =20
         card_y =GameSettings.SCREEN_HEIGHT-180
-        card_w, card_h = 300, 70
-
-        #背景卡片
         
+        #背景卡片
         screen.blit(card_bg_image, (card_x, card_y))
 
         #怪獸圖片
@@ -477,11 +553,12 @@ class BattleScene(Scene):
         #怪獸大圖
         big_img_path=monster_img_path.replace("menu","")
         big_img_path=big_img_path.replace("_","")
-        #big_img_path=f"assets/images/{big_img_path}"
         big_img = pg.image.load(big_img_path).convert_alpha()
         big_img = pg.transform.scale(big_img, (600, 300))
         big_img = crop_image(big_img, 300, 0, 300, 300)
         screen.blit(big_img, self.player_pos)
+        
+        
         
         #名字與等級
         font = pg.font.Font(None, 28)
@@ -593,9 +670,20 @@ class BattleScene(Scene):
                 screen.blit(self.font.render(f'enemy\'s hp -{self.damage}!', True, (0,0,0)), (450,600))
             
         #呼叫函式畫怪獸和敵人卡
-        self.draw_monster_card(screen)
         self.draw_enemy_card(screen)
+        self.draw_monster_card(screen)
         
+        
+        #heal
+        if self.state == "heal":
+            self.heal_anim.rect.topleft = self.player_pos
+            self.heal_anim.draw(screen, None)
+        
+        #attack
+        if self.state == "player_attack":
+            self.attack_anim.rect.topleft = self.enemy_pos
+            self.attack_anim.draw(screen, None)
+            
         # 玩家回合顯示按鈕
         if self.state == "player_turn":
             self.attack_button.draw(screen)

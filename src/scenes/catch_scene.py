@@ -164,9 +164,9 @@ class CatchScene(Scene):
         self.state = "finished"
         self.finished = True
         self.game_manager.bag._monsters_data.append(self.monster)
-        sound_manager.pause_all()
+        
         sound_manager.play_sound("RBY 119 Captured a Pokemon!.ogg")
-        sound_manager.resume_all()
+        
         for item in self.game_manager.bag._items_data:
             if item["name"]=="Pokeball":
                 item["count"]-=1

@@ -110,6 +110,7 @@ class GameScene(Scene):
         
     @override
     def enter(self) -> None:
+        sound_manager.stop_all_sounds()
         sound_manager.play_bgm("RBY 103 Pallet Town.ogg")
         self.backpack_overlay.hide()
         self.shop_overlay.hide()
