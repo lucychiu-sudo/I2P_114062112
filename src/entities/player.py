@@ -52,7 +52,7 @@ class Player(Entity):
         self.teleport_cool_time-=dt
         if self.teleport_cool_time<=0:
             tp = self.game_manager.current_map.check_teleport(self.position)
-            if tp:
+            if tp and self.is_moving:
                 dest = tp.destination
                 self.game_manager.switch_map(dest)
                 self.teleport_cool_time=0.3

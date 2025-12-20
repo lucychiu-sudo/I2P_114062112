@@ -95,7 +95,7 @@ class BattleScene(Scene):
             elif item["name"]=="Coins":
                 self.coins = item
         
-        1
+        
         
         #字體和偵測
         self.turn=True
@@ -606,7 +606,7 @@ class BattleScene(Scene):
         #提示字
         if self.msg:
             font_msg = pg.font.Font(None, 80)
-            msg_surf = font_msg.render(self.msg, True, (250, 0, 0))
+            msg_surf = font_msg.render(self.msg, True, (0, 0, 255))
             screen.blit(
                 msg_surf,
                 (GameSettings.SCREEN_WIDTH//4,

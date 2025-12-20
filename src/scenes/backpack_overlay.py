@@ -27,8 +27,8 @@ class BackpackOverlay(Scene):
 
         #返回按鈕
         self.back_button = Button(
-            "UI/button_x.png", 
-            "UI/button_x_hover.png",
+            "UI/button_back.png", 
+            "UI/button_back_hover.png",
             px+300, py -210,    
             60, 60,
             lambda: self.hide()  
@@ -45,12 +45,9 @@ class BackpackOverlay(Scene):
     def update(self, dt: float):
         if not self.visible:
             return
-        
         #按鈕
         self.back_button.update(dt)
         
-        
-    
     def draw(self, screen: pg.Surface):
         if not self.visible:
             return
@@ -91,6 +88,8 @@ class BackpackOverlay(Scene):
             hp = monster["hp"] if isinstance(monster, dict) else monster.hp
             max_hp = monster["max_hp"] if isinstance(monster, dict) else monster.max_hp
             level = monster["level"] if isinstance(monster, dict) else monster.level
+            attack = monster["attack"] if isinstance(monster, dict) else monster.attack
+            defense = monster["defense"] if isinstance(monster, dict) else monster.defense
             image_path = monster["sprite_path"] if isinstance(monster, dict) else monster.sprite_path
             
             #卡片位置
@@ -110,7 +109,7 @@ class BackpackOverlay(Scene):
             
             
             font_small = pg.font.Font(None, 28)
-            name_text = font_small.render(f"{name}   Lv.{level}", True, (0, 0, 0))
+            name_text = font_small.render(f"{name} {attack} {defense}  Lv.{level}", True, (0, 0, 0))
             screen.blit(name_text, (card_x +80, card_y +10))
 
             #血條

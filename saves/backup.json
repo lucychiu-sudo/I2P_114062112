@@ -14,7 +14,10 @@
       "teleport": [
         { "x": 24, "y": 23, "destination": "gym.tmx" },
         { "x": 16, "y": 28, "destination": "home.tmx" },
-        { "x": 54, "y": 14, "destination": "god.tmx" }
+        { "x": 42, "y": 28, "destination": "god.tmx" },
+        { "x": 43, "y": 28, "destination": "god.tmx" },
+        { "x": 42, "y": 27, "destination": "god.tmx" },
+        { "x": 43, "y": 27, "destination": "god.tmx" }
       ],
       "player": {
         "x": 16,

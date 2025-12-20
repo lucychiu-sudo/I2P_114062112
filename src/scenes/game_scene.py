@@ -5,6 +5,7 @@ import math
 from src.scenes.scene import Scene
 from src.maps.map import Map
 from src.scenes.battle_scene import BattleScene
+from src.scenes.upgrade_scene import UpdateScene
 from src.scenes.navigation_overlay import NavigationOverlay
 from src.scenes.setting_overlay import SettingOverlay
 from src.scenes.backpack_overlay import BackpackOverlay
@@ -197,7 +198,7 @@ class GameScene(Scene):
             
         for npc in self.game_manager.current_enemy_trainers:
             if npc.detected:
-                if input_manager.key_down(pg.K_r):
+                if input_manager.key_down(pg.K_e):
                     battle = BattleScene(self.game_manager.bag._monsters_data,self.game_manager.bag._items_data)
                     scene_manager.set_scene_instance(battle)
                 
@@ -239,8 +240,8 @@ class GameScene(Scene):
                                                 GameSettings.TILE_SIZE)):
             self.on_god=True
             if input_manager.key_down(pg.K_e):
-                catch = CatchScene(self.game_manager)
-                scene_manager.set_scene_instance(catch)
+                update = UpdateScene(self.game_manager.bag._monsters_data,self.game_manager.bag._items_data)
+                scene_manager.set_scene_instance(update)
         else:
             self.on_god=False
         
@@ -250,7 +251,7 @@ class GameScene(Scene):
         #TODO: UPDATE CHAT OVERLAY:
 
         if self.chat_overlay:
-            if input_manager.key_pressed(pg.K_e):
+            if input_manager.key_pressed(pg.K_c):
                 self.chat_overlay.open()
             self.chat_overlay.update(dt)
         # Update chat bubbles from recent messages
@@ -450,7 +451,7 @@ class GameScene(Scene):
             elif self.game_manager.current_map_key=="gym.tmx":
                 self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.2)
             elif self.game_manager.current_map_key=="god.tmx":
-                self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.1)
+                self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.102)
             
             player_pos = self.game_manager.player.position
             map_obj = self.game_manager.current_map
@@ -483,10 +484,10 @@ class GameScene(Scene):
                 if player.map == self.game_manager.current_map.path_name:
                     player.draw(screen, self.game_manager.player.camera)
                     
-        # try:
-            #     self._draw_chat_bubbles(...)
-            # except Exception:
-            #     pass
+        try:
+            self._draw_chat_bubbles(screen, camera)
+        except Exception:
+            pass
                     
         if self.on_bush:
             icon_x = self.game_manager.player.position.x - camera.x+5
@@ -522,4 +523,6 @@ class GameScene(Scene):
         self.setting_overlay.draw(screen)
         self.backpack_overlay.draw(screen)
         self.shop_overlay.draw(screen)
+        
+        
         
