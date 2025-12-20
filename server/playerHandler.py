@@ -81,6 +81,7 @@ class PlayerHandler:
             self._next_id += 1
             # HINT: This part might be helpful for direction change
             # Maybe you can add other parameters? 
+            #多傳direction、is_moving
             self.players[pid] = Player(pid, 0.0, 0.0, "", time.monotonic(),"DOWN",False)
             return pid
 
@@ -106,6 +107,7 @@ class PlayerHandler:
         with self._lock:
             player_list = {}
             for p in self.players.values():
+                #多傳direction、is_moving
                 player_list[p.id] = {
                     "id": p.id,
                     "x": p.x,

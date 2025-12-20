@@ -56,6 +56,22 @@ class CatchScene(Scene):
         self.animation_path=self.animation_path.replace(".png","_idle.png")
         self.animation=Animation(self.animation_path,["idle"],4,(300,300))
         self.animation.rect.x,self.animation.rect.y=(600,200)
+        self.state = "idle"
+
+        # 寶可球圖片
+        self.ball_img = pg.image.load("assets/images/ingame_ui/ball.png").convert_alpha()
+        self.ball_img = pg.transform.scale(self.ball_img, (60, 60))
+        self.ball_pos = pg.Vector2(400, 500)  
+        self.original_ball_pos = (700,400)
+        self.ball_target = pg.Vector2(700, 300) 
+        self.ball_speed = 600
+
+        self.ball_visible = False
+        self.shake_count = 0
+        self.shake_timer = 0
+        self.ring_radius = 10
+        self.ring_alpha = 180
+        self.sparkles = []
         
     @override
     def enter(self) -> None:
@@ -65,28 +81,93 @@ class CatchScene(Scene):
     def update(self, dt):
         
         keys = pg.key.get_pressed()
-        if keys[pg.K_e]:
-            self.catch_pokemon()
+        if keys[pg.K_e] and self.state == "idle":
+            self.start_throw()
             
         if self.finished:
-            self.animation.update(dt)
             #結束按空白鍵退出
             if pg.key.get_pressed()[pg.K_SPACE] :
                 scene_manager.change_scene("game")
             return
-        self.animation.update(dt)
         
-    def catch_pokemon(self):
-        if self.finished:
-            return
+        if self.state == "throw":
+            direction = self.ball_target - self.ball_pos
+            
+            if direction.length() < 10:
+                self.state = "hit"
+                self.ball_pos = self.ball_target
+                self.animation = None  # 怪獸消失
+                
+            else:
+                self.ball_pos += direction.normalize() * self.ball_speed * dt
+                
+        elif self.state == "hit":
+            self.state = "fall"
+            
+        elif self.state == "fall":
+            self.ball_pos.y += 300 * dt
+            if self.ball_pos.y >= 400:
+                self.ball_pos.y = 400
+                self.state = "shake"
+                self.shake_timer = 1.0
+                
+        elif self.state == "shake":
+            self.turn=True
+            self.shake_timer -= dt
+            self.shake()
+
+            if self.shake_timer <= 0:
+                self.reset_pos()
+                self.spawn_sparkles()
+                #去緩衝狀態
+                self.glow_timer = 0
+                self.state = "glow"
+        
+        elif self.state == "glow":
+            self.ring_radius += 200 * dt
+            self.ring_alpha -= 300 * dt
+            if self.ring_alpha <= 0:
+                self.finish_catch()
+        
+        for s in self.sparkles[:]:
+            s["pos"] += s["vel"] * dt
+            s["life"] -= dt
+            if s["life"] <= 0:
+                self.sparkles.remove(s)
+                
+    def start_throw(self):
+        self.state = "throw"
+        self.ball_visible = True
+        
+        
+    def spawn_sparkles(self):
+        for _ in range(12):
+            self.sparkles.append({
+                "pos": self.ball_pos.copy(),
+                "vel": pg.Vector2(random.uniform(-150,150), random.uniform(-200,-50)),
+                "life": 0.5
+            })
+    
+    '''震動'''
+    def shake(self):
+        offset = random.randint(-5, 5)
+        self.ball_pos.x = self.original_ball_pos[0] + offset
+        self.ball_pos.y = self.original_ball_pos[1]
+            
+    '''停止震動'''
+    def reset_pos(self):
+        self.ball_pos = pg.Vector2(self.original_ball_pos)
+            
+    def finish_catch(self):
+        self.state = "finished"
+        self.finished = True
         self.game_manager.bag._monsters_data.append(self.monster)
+        sound_manager.pause_all()
         sound_manager.play_sound("RBY 119 Captured a Pokemon!.ogg")
         for item in self.game_manager.bag._items_data:
             if item["name"]=="Pokeball":
                 item["count"]-=1
-
-        # 回主場景
-        self.finished=True
+        
 
     def draw_button_area(self, screen: pg.Surface):
         button_area_w = GameSettings.SCREEN_WIDTH
@@ -117,10 +198,29 @@ class CatchScene(Scene):
         if not self.finished:
             screen.blit(text1, (20, 580))
             screen.blit(text2, (20, 620))
-        
-        self.animation.draw(screen,None)
+            
         if self.finished:
             screen.blit(self.font.render("You caught it!", True, (0,0,0)), (900, 600))
             screen.blit(self.font.render("Press SPACE to exit", True, (0,0,0)), (900, 650))
-            self.animation.draw(screen,None)
-            return
+            
+        if self.animation:
+            self.animation.draw(screen, None)
+        
+        if self.ball_visible:
+            screen.blit(self.ball_img, self.ball_pos)
+            
+        if self.state == "glow":
+            ring = pg.Surface((200, 200), pg.SRCALPHA)
+            pg.draw.circle(
+                ring,
+                (255, 255, 255, int(self.ring_alpha)),
+                (100, 100),
+                int(self.ring_radius),
+                3
+            )
+            screen.blit(ring, self.ball_pos - pg.Vector2(100, 100))
+            for s in self.sparkles:
+                pg.draw.circle(screen, (250,250,200), s["pos"], 3)
+            
+        
+

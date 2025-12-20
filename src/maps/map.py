@@ -27,9 +27,6 @@ class Map:
         self._surface = pg.Surface((pixel_w, pixel_h), pg.SRCALPHA)
         self._render_all_layers(self._surface)
         
-        
-        
-        
         # Prebake the collision map
         self._collision_map = self._create_collision_map()
         self._bush_map = self._create_bush_map()
@@ -52,7 +49,7 @@ class Map:
         
         
     def draw_minimap(self, screen: pg.Surface, minimap_pos,scale):
-        #prebake minimap
+        #像畫一般map一樣，只是依scale縮小map大小
         minimap_pixel_w = self.tmxdata.width * GameSettings.TILE_SIZE*scale
         minimap_pixel_h = self.tmxdata.height * GameSettings.TILE_SIZE*scale
 

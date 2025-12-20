@@ -23,6 +23,7 @@ class NavigationOverlay(Scene):
         window_x = (GameSettings.SCREEN_WIDTH - window_w) // 2
         window_y = (GameSettings.SCREEN_HEIGHT - window_h) // 2
         start_x, start_y = window_x + 50, window_y + 120
+        #把所有地點加進button
         for i, (name, pos) in enumerate(places.items()):
             btn = Button(
                 "UI/button_play.png", "UI/button_play_hover.png",
@@ -52,14 +53,6 @@ class NavigationOverlay(Scene):
         self.selected_place = pos
         if self.game_manager.current_map_key == "map.tmx":
             self.game_scene.start_navigation(pos)
-        
-        '''if self.game_manager.current_map_key == "home.tmx":
-            if pos.x == 16 and pos.y == 30:
-                pass
-            else:
-                self.game_scene.start_navigation(Position(12,12))
-                self.game_scene.pending_navigation_target = pos'''
-            
     
     #覆蓋update
     def update(self, dt):

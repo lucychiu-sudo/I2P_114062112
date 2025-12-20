@@ -62,12 +62,10 @@ class BattleScene(Scene):
         self.big_enemy_img_path=self.enemy_img_path.replace("menu","")
         self.big_enemy_img_path=self.big_enemy_img_path.replace("_","")
         self.big_enemy_idle_img_path=self.big_enemy_img_path.replace(".png","_idle.png")
-        #self.big_enemy_idle_img_path= ASSET+self.big_enemy_idle_img_path
         self.bid_enemy_idle_anim=Animation(self.big_enemy_idle_img_path,["idle"],4,(300,300))
         self.bid_enemy_idle_anim.rect.x,self.bid_enemy_idle_anim.rect.y=self.enemy_pos
         
         self.big_enemy_attack_img_path=self.big_enemy_img_path.replace(".png","_attack.png")
-        #self.big_enemy_attack_img_path=f"assets/images/{self.big_enemy_attack_img_path}"
         self.bid_enemy_attack_anim=Animation(self.big_enemy_attack_img_path,["attack"],4,(300,300))
         self.bid_enemy_attack_anim.rect.x,self.bid_enemy_attack_anim.rect.y=self.enemy_pos
         self.enemy_anim_finished = False
@@ -184,6 +182,7 @@ class BattleScene(Scene):
         self.player_monster = self.monsters[self.current_monster_index]
         #self.battle_potion_overlay = BattlePotionOverlay(self.attack_potion,self.heal_potion,self.defense_potion,self.player_monster)
         
+    #用來檢查有沒有屬性加乘
     def element_stronger(self,attacker,other):
         if attacker["element"]=="water" and other["element"]=="fire":
             return True
@@ -199,7 +198,10 @@ class BattleScene(Scene):
         #不是玩家的回合就不要做事
         if self.state!="player_turn" or self.finished:
             return
-        #用level當attack值
+        if self.player_monster["hp"]==0:
+            self.finished=True
+            self.result = "Your monster need heal"
+        #如果有屬性加成就加5
         if self.element_stronger(self.player_monster,self.enemy):
             self.player_monster["attack"]+=5
         self.damage = max(1,int(self.player_monster["attack"]+self.add_attack-self.enemy["defense"]))
@@ -214,10 +216,11 @@ class BattleScene(Scene):
             self.result = "You Win!"
             sound_manager.play_sound("RBY 111 Victory! (Wild Pokemon).ogg")
             self.coins["count"]+=200
+            #幫怪獸升等
             self.player_monster["level"]+=1
+            #如果到10等而且可以進化
             if self.player_monster["level"]>=10 and self.player_monster["name"] in self.evolution_map:
                 old_name=self.player_monster["name"]
-                
                 self.player_monster["hp"] = self.evolution_map[self.player_monster["name"]]["hp"]
                 self.player_monster["max_hp"] = self.evolution_map[self.player_monster["name"]]["max_hp"]
                 self.player_monster["attack"] = self.evolution_map[self.player_monster["name"]]["attack"]
@@ -247,7 +250,7 @@ class BattleScene(Scene):
         if self.defense_potion["count"]>0:
             self.add_defense+=10
             self.defense_potion["count"]-=1
-            self.show_message(f"Using defense potion...")
+            self.show_message(f"defense +10")
         
     '''玩家加攻擊'''
     def player_attack_potion(self):
@@ -256,7 +259,7 @@ class BattleScene(Scene):
         if self.attack_potion["count"]>0:
             self.add_attack+=10
             self.attack_potion["count"]-=1
-            self.show_message(f"Using attack potion...")
+            self.show_message(f"attack +10")
         
     '''玩家回血'''
     def player_heal_potion(self):
@@ -265,7 +268,7 @@ class BattleScene(Scene):
         if self.heal_potion["count"]>0 and self.player_monster["hp"]<self.player_monster["max_hp"]:
             self.player_monster["hp"] =min(self.player_monster["max_hp"], self.player_monster["hp"]+30)
             self.heal_potion["count"]-=1
-            self.show_message(f"Using heal potion...")
+            self.show_message(f"hp +30")
     
     '''玩家震動'''
     def player_shake(self):
@@ -568,9 +571,9 @@ class BattleScene(Scene):
         if self.finished:
             font_big=pg.font.Font(None, 80)
             screen.blit(font_big.render(self.result, True, (30,30,30)), (GameSettings.SCREEN_WIDTH//2-150, GameSettings.SCREEN_HEIGHT // 2))
-            screen.blit(self.font.render("Press SPACE to exit battle", True, (0,0,0)), (GameSettings.SCREEN_WIDTH//2+300, GameSettings.SCREEN_HEIGHT-50))
+            screen.blit(self.font.render("Press SPACE to exit battle", True, (0,0,0)), (GameSettings.SCREEN_WIDTH//2+250, GameSettings.SCREEN_HEIGHT-50))
             if self.evolution:
-                screen.blit(self.font.render(self.evolution_text, True, (30,30,30)), (GameSettings.SCREEN_WIDTH//2+300, GameSettings.SCREEN_HEIGHT-100))
+                screen.blit(self.font.render(self.evolution_text, True, (30,30,30)), (GameSettings.SCREEN_WIDTH//2+250, GameSettings.SCREEN_HEIGHT-100))
             return
         
         if self.turn == True :

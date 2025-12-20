@@ -21,7 +21,9 @@ class ShopOverlay(Scene):
         self.game_manager = game_manager
         #Overlay預設不顯示
         self.mode = "buy"
-        self.visible = False   
+        self.visible = False
+        
+        #所有商品
         self.buy_items= [
         { "name": "Heal Potion",   "count":1,"price": 50,  "sprite_path": "ingame_ui/potion.png" },
         { "name": "Attack Potion", "count":1,"price": 70,  "sprite_path": "ingame_ui/potion.png" },
@@ -86,12 +88,11 @@ class ShopOverlay(Scene):
         self.refresh_items()
         
     def refresh_items(self):
-        # 切換模式後重新設定 items 與按鈕
+        # 初始時、切換模式後重新設定 items 與按鈕
         if self.mode == "buy":
             self.items = self.buy_items
         else:
             self.items = [i for i in self.game_manager.bag._items_data if i["name"] != "Coins"]
-
         
         self.items_buttons.clear()
         px = GameSettings.SCREEN_WIDTH // 2
@@ -100,6 +101,7 @@ class ShopOverlay(Scene):
 
         for item in self.items:
             if self.mode == "buy":
+                #把item的資料放進button list裡
                 self.items_buttons.append(Button(
                     "UI/button_shop.png",
                     "UI/button_shop_hover.png",
@@ -135,7 +137,6 @@ class ShopOverlay(Scene):
             coins["count"] += item["price"]
             # 扣物品
             item["count"] -= 1
-            
             # 顯示訊息
             self.show_message(f"Sold {item['name']} +{item["price"]}$")
         else:
@@ -143,9 +144,11 @@ class ShopOverlay(Scene):
     
     
     def buy_item(self, item):
+        #找coins
         for own in self.game_manager.bag._items_data:
             if own["name"]=="Coins":
                 coins = own
+        #如果錢不夠
         if coins["count"]<item["price"]:
             self.show_message(f"Too poor to buy {item['name']}")
             return
@@ -155,7 +158,9 @@ class ShopOverlay(Scene):
                 "count": item["count"],
                 "sprite_path": item["sprite_path"]
             }
+            #先扣錢
             coins["count"]-=item["price"]
+            #把物品加進背包
             self.game_manager.bag.add_item(Item(data))
             self.show_message(f"{item['name']} +1")
         
@@ -167,8 +172,6 @@ class ShopOverlay(Scene):
             self.msg_timer -= dt
             if self.msg_timer <= 0:
                 self.msg = ""
-        
-        
         
         #按鈕
         self.back_button.update(dt)
@@ -199,6 +202,7 @@ class ShopOverlay(Scene):
 
         px = GameSettings.SCREEN_WIDTH // 2
         py = GameSettings.SCREEN_HEIGHT // 2
+        
         #字
         font = pg.font.Font(None, 52)
         text = font.render("shop", True, (30, 30, 30))
@@ -226,7 +230,6 @@ class ShopOverlay(Scene):
             card_x = window_x + 20
             card_y = window_y + y_offset + i * 80
             
-
             # 畫卡片背景卡片
             screen.blit(card_bg_image, (card_x, card_y))
 

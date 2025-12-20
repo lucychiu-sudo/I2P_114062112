@@ -98,9 +98,9 @@ class GameScene(Scene):
         
         #navigation
         places = {
-            "Gym": Position(24,25),
-            "Home": Position(16,30),
-            "House":Position(54,16)
+            "Gym": Position(24,24),
+            "Home": Position(16,29),
+            "House":Position(54,14)
         }
         self.arrow_image = pg.image.load("assets/images/UI/raw/UI_Flat_IconArrow01a.png").convert_alpha()
         self.arrow_image = pg.transform.scale(self.arrow_image, (25, 25))
@@ -127,7 +127,7 @@ class GameScene(Scene):
             self.online_manager.exit()
     
     def bfs_path(self, game_map,start: Position, goal: Position):
-        
+        #先都換成tile
         start_tile = (start.x // GameSettings.TILE_SIZE, start.y // GameSettings.TILE_SIZE)
         goal_tile = (goal.x, goal.y)
 
@@ -139,20 +139,25 @@ class GameScene(Scene):
 
         while queue:
             current = queue.popleft()
+            #如果現在的格子已經是終點才結束
             if current == goal_tile:
                 break
 
+            #檢查四個方向
             for dx, dy in directions:
                 nx, ny = current[0]+dx, current[1]+dy
                 width = self.game_manager.current_map.tmxdata.width 
-                height = self.game_manager.current_map.tmxdata.height 
+                height = self.game_manager.current_map.tmxdata.height
+                #如果那一格可以走
                 if 0 <= nx < width and 0 <= ny < height and  self.game_manager.current_map.is_walkable(nx, ny,self.game_manager):
                     next_tile = (nx, ny)
+                    #而且他沒被走過
                     if next_tile not in came_from:
+                        #就加入路徑
                         queue.append(next_tile)
                         came_from[next_tile] = current
 
-        # 重建路徑
+        #從中點一步步回推整段路徑並加入list
         path = []
         current = goal_tile
         while current != start_tile:
@@ -160,12 +165,15 @@ class GameScene(Scene):
             current = came_from.get(current)
             if current is None:
                 return []
+        #把整個路徑顛倒回傳
         path.reverse()
         return path
     
+    '''被navigation overlay叫'''
     def start_navigation(self, target_pos: Position):
         if target_pos is None or self.game_manager.player is None:
             return
+        #找到路徑
         path_tiles = self.bfs_path(self.game_manager.current_map, self.game_manager.player.position, target_pos)
         # 將 tile 轉回 pixel
         self.navigation_path = [
@@ -178,14 +186,7 @@ class GameScene(Scene):
     @override
     def update(self, dt: float):
         # Check if there is assigned next scene
-        
         self.game_manager.try_switch_map()
-        '''if not self.is_navigating and hasattr(self, "pending_navigation_target"):
-            self.start_navigation(self.pending_navigation_target)
-            del self.pending_navigation_target
-        if self.is_navigating and self.navigation_path == []:
-            if hasattr(self, "pending_navigation_target"):
-                self.game_manager.switch_map("map.tmx")'''
                 
         # Update player and other data
         if self.game_manager.player:
@@ -202,6 +203,7 @@ class GameScene(Scene):
                     battle = BattleScene(self.game_manager.bag._monsters_data,self.game_manager.bag._items_data)
                     scene_manager.set_scene_instance(battle)
                 
+        #檢查有沒有遇到shop npc
         for npc in self.game_manager.current_shop_npc:
             if npc.detected:
                 if input_manager.key_down(pg.K_e):
@@ -303,7 +305,7 @@ class GameScene(Scene):
         self.setting_overlay.update(dt)
         self.backpack_overlay.update(dt)
         
-            
+        #如果正在navigate
         if getattr(self, "is_navigating", False) and self.navigation_index < len(self.navigation_path):
             target = self.navigation_path[self.navigation_index]
             player_pos = self.game_manager.player.position
@@ -315,10 +317,12 @@ class GameScene(Scene):
 
             if dist < 2:
                 self.navigation_index += 1
+            #玩家位置改變
             else:
                 self.game_manager.player.position.x += dx / dist * speed * dt
                 self.game_manager.player.position.y += dy / dist * speed * dt
             
+            #判斷玩家方向
             if abs(dx) > abs(dy):
                 if dx > 0:
                     self.game_manager.player.direction=Direction.RIGHT
@@ -335,25 +339,18 @@ class GameScene(Scene):
             if self.navigation_index >= len(self.navigation_path):
                 self.is_navigating = False
                 
-        '''if self.is_navigating == False:
-            self.is_navigating = False
-            # 如果有 pending_navigation_target，表示剛到門口
-            if getattr(self, "pending_navigation_target", None) is not None:
-                # 切換地圖
-                print(223456789)
-                #self.game_manager.switch_map("map.tmx") 
-                self.game_manager.player.position.y-=4
-                # 導航到最終目的地
-                self.start_navigation(self.pending_navigation_target)
-                self.pending_navigation_target = None'''
-            
+        
     def _draw_chat_bubbles(self, screen: pg.Surface, camera: PositionCamera) -> None:
+        
         now = time.monotonic()
 
         expired = [pid for pid, (_, ts) in self._chat_bubbles.items() if ts <= now]
+        #如果超過時間了
         for pid in expired:
+            #就刪掉這個bubble
             self._chat_bubbles.pop(pid, None)
 
+        #如果沒有任何bubbles
         if not self._chat_bubbles:
             return
 
@@ -361,9 +358,12 @@ class GameScene(Scene):
 
         # local player
         if self.game_manager.player:
+            #取自己id
             local_pid = self.online_manager.player_id
+            #如果自己有bubble
             if local_pid in self._chat_bubbles:
                 text, _ = self._chat_bubbles[local_pid]
+                #draw出來
                 self._draw_chat_bubble_for_pos(
                     screen,
                     camera,
@@ -376,32 +376,56 @@ class GameScene(Scene):
         players = self.online_manager.get_list_players()
         for p in players:
             pid = p["id"]
+            #沒bubble就不畫
             if pid not in self._chat_bubbles:
                 continue
+            #不再同一張地圖也不畫
             if p["map"] != self.game_manager.current_map.path_name:
                 continue
-
             world_pos = Position(p["x"], p["y"])
             text, _ = self._chat_bubbles[pid]
             self._draw_chat_bubble_for_pos(screen, camera, world_pos, text, font)
 
     def _draw_chat_bubble_for_pos(self,screen: pg.Surface,camera: PositionCamera,
                                 world_pos: Position,text: str,font: pg.font.Font):
+        #把地圖位置換成本玩家的鏡頭裡的位置
         screen_pos = camera.transform_position_as_position(world_pos)
         text_surf = font.render(text, True, (0, 0, 0))
 
         padding = 6
         w = text_surf.get_width() + padding * 2
         h = text_surf.get_height() + padding * 2
-
-        bubble_x = screen_pos.x - w // 2
+        bubble_x = screen_pos.x - w // 2+30
         bubble_y = screen_pos.y - 40
+        bubble_rect = pg.Rect(bubble_x, bubble_y, w, h)
+        
+        pg.draw.rect(
+            screen,
+            (255, 255, 255),
+            bubble_rect,
+            border_radius=8
+        )
+        pg.draw.rect(
+            screen,
+            (0, 0, 0),
+            bubble_rect,
+            2,
+            border_radius=8
+        )
 
-        bg = pg.Surface((w, h), pg.SRCALPHA)
-        bg.fill((255, 255, 255, 230))
+    
+        tail_width = 10
+        tail_height = 8
 
-        screen.blit(bg, (bubble_x, bubble_y))
-        screen.blit(text_surf, (bubble_x + padding, bubble_y + padding))
+        tail_tip = (screen_pos.x+30, bubble_y + h-2+8)
+        tail_left = (screen_pos.x - tail_width+30, bubble_y + h-2)
+        tail_right = (screen_pos.x + tail_width+30, bubble_y + h-2)
+
+        pg.draw.polygon(screen,(255, 255, 255),[tail_left, tail_right, tail_tip])
+        pg.draw.polygon(screen,(0, 0, 0),[tail_left, tail_right, tail_tip],2)
+
+        screen.blit(text_surf,(bubble_x + padding, bubble_y + padding))
+
 
     
     @override
@@ -443,7 +467,7 @@ class GameScene(Scene):
             self.game_manager.player.draw(screen, camera)
             
             minimap_pos = (10, 10)
-            
+            #呼叫map裡的draw map函式
             if self.game_manager.current_map_key=="map.tmx":
                 self.game_manager.current_map.draw_minimap(screen, minimap_pos,scale=0.08)
             elif self.game_manager.current_map_key=="home.tmx":

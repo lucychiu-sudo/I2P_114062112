@@ -39,15 +39,15 @@ class UpdateScene(Scene):
         self.monsters_buttons =[]
         px = GameSettings.SCREEN_WIDTH // 2
         py = GameSettings.SCREEN_HEIGHT // 2
-        start = -115
+        start = -200
         
         #怪獸資料
         for i in range(0,len(self.monsters)):
             self.monsters_buttons.append(Button(
-                    "UI/raw/UI_Flat_FrameSlot01a.png",
-                    "UI/raw/UI_Flat_FrameSlot01a.png",
+                    "UI/raw/UI_Flat_Banner03a.png",
+                    "UI/raw/UI_Flat_Banner03a.png",
                     px -600, py+start+80*i,
-                    370, 70,
+                    300, 70,
                     lambda i=i : self.switch_midle(i)
                 ))
             
@@ -62,8 +62,8 @@ class UpdateScene(Scene):
                 self.attack_potion = item
                 self.usable_items.append(item)
                 self.items_buttons.append(Button(
-                    "UI/raw/UI_Flat_Banner03a.png",
-                    "UI/raw/UI_Flat_FrameSlot01c.png",
+                    "UI/raw/UI_Flat_Frame01a.png",
+                    "UI/raw/UI_Flat_Frame01a.png",
                     px + 250, py  + start,
                     300, 70,
                     lambda: self.select_item("attack")
@@ -72,8 +72,8 @@ class UpdateScene(Scene):
                 self.defense_potion = item
                 self.usable_items.append(item)
                 self.items_buttons.append(Button(
-                    "UI/raw/UI_Flat_Banner03a.png",
-                    "UI/raw/UI_Flat_FrameSlot01c.png",
+                    "UI/raw/UI_Flat_Frame01a.png",
+                    "UI/raw/UI_Flat_Frame01a.png",
                     px + 250, py  + start+80,
                     300, 70,
                     lambda: self.select_item("defense")
@@ -82,22 +82,22 @@ class UpdateScene(Scene):
                 self.heal_potion = item
                 self.usable_items.append(item)
                 self.items_buttons.append(Button(
-                    "UI/raw/UI_Flat_Banner03a.png",
-                    "UI/raw/UI_Flat_FrameSlot01c.png",
+                    "UI/raw/UI_Flat_Frame01a.png",
+                    "UI/raw/UI_Flat_Frame01a.png",
                     px + 250, py  + start+80*2,
                     300, 70,
                     lambda: self.select_item("heal")
                 ))
         self.use_button = Button(
-            "UI/raw/UI_Flat_Button01a_3.png",
-            "UI/raw/UI_Flat_Button01a_1.png",
-            px-50, py+120, 70, 50,
+            "UI/raw/UI_Flat_Button02a_3.png",
+            "UI/raw/UI_Flat_Button02a_1.png",
+            px-40, py+100, 70, 50,
             lambda: self.use_item()    
         )
         self.back_button = Button(
             "UI/button_x.png", 
             "UI/button_x_hover.png",
-            px+600, py+400,    
+            px*2-100, 50,    
             60, 60,
             lambda: scene_manager.change_scene("game")  
         )
@@ -224,7 +224,7 @@ class UpdateScene(Scene):
     def draw_monster_area(self, screen: pg.Surface):
         px = GameSettings.SCREEN_WIDTH // 2
         py = GameSettings.SCREEN_HEIGHT // 2
-        start = -115
+        start = -200
         for i, monster in enumerate(self.monsters):
             #把所有資料叫出來
             name = monster["name"] if isinstance(monster, dict) else monster.name
@@ -241,24 +241,9 @@ class UpdateScene(Scene):
             
             font_small = pg.font.Font(None, 28)
             name_text = font_small.render(f"{name}   Lv.{level}", True, (0, 0, 0))
-            screen.blit(name_text, (px -600 +80, py+start+80*i +10))
+            screen.blit(name_text, (px -600 +90, py+start+80*i +15))
 
-            #血條
-            bar_x = px -600 + 80
-            bar_y = py+start+80*i + 35
-            bar_w = 130
-            bar_h = 15
-            fill_w = int(bar_w * hp / max_hp)
-            #背景
-            pg.draw.rect(screen, (150, 150, 150), (bar_x, bar_y, bar_w, bar_h))
-            #血量
-            pg.draw.rect(screen, (150, 0, 0), (bar_x, bar_y, fill_w, bar_h))
-            #邊框
-            pg.draw.rect(screen, (0, 0, 0), (bar_x, bar_y, bar_w, bar_h), 2)
-
-            #血量數字
-            hp_text = font_small.render(f"{hp}/{max_hp}", True, (0, 0, 0))
-            screen.blit(hp_text, (bar_x + bar_w + 5, bar_y - 2))
+            
         
     def draw_midle_area(self, screen: pg.Surface):
         px = GameSettings.SCREEN_WIDTH // 2
@@ -270,7 +255,7 @@ class UpdateScene(Scene):
         level = monster["level"]
         attack = monster["attack"]
         defense = monster["defense"]
-        self.big_anim.rect.midbottom=(px-150,py-180)
+        self.big_anim.rect.midbottom=(px-150,py-200)
         self.big_anim.draw(screen,None)
         
         
@@ -279,46 +264,62 @@ class UpdateScene(Scene):
         button_area_x = GameSettings.SCREEN_WIDTH//4
         button_area_y = GameSettings.SCREEN_HEIGHT - 200
         
-        overlay = pg.Surface((button_area_w, button_area_h), pg.SRCALPHA)
-        #填好半透明白色
-        overlay.fill((255, 255, 255, 150))
-        # 貼到螢幕上
-        screen.blit(overlay, (button_area_x, button_area_y))
-        border_color = (120, 120, 120)      
-        border_rect = pg.Rect(button_area_x, button_area_y, button_area_w, button_area_h)
-        pg.draw.rect(screen, border_color, border_rect, width=4) 
+        area_img_path = "assets/images/UI/raw/UI_Flat_FrameMarker03a.png"
+        i_image =pg.image.load(area_img_path).convert_alpha()
+        i_image = pg.transform.scale(i_image,(button_area_w,button_area_h))
+        screen.blit(i_image, (button_area_x, button_area_y))
         
         #名字與等級
-        font = pg.font.Font(None, 28)
+        font = pg.font.Font(None, 35)
+        font_small = pg.font.Font(None, 25)
         
-        name_surf = font.render(f"{name}  Lv.{level}  attack:{attack}  defense:{defense}", True, (0, 0, 0))
-        screen.blit(name_surf, (button_area_x + 85,button_area_y+ 10))
+        name_surf = font.render(f"Name:{name}", True, (0, 0, 0))
+        screen.blit(name_surf, (button_area_x + 85,button_area_y+ 30))
+        level_surf = font.render(f"Lv.{level}", True, (0, 0, 0))
+        screen.blit(level_surf, (button_area_x + 85,button_area_y+ 60))
+        
+        if name in self.evolution_map:
+            evolution_monster = self.evolution_map[name]
+            evolution_img = ASSET+evolution_monster["sprite_path"]
+            evolution_image =pg.image.load(evolution_img).convert_alpha()
+            evolution_text = font_small.render(f"Still need {10-level} levels to evolute to", True, (0, 0, 0))
+            screen.blit(evolution_text, (button_area_x + 85,button_area_y+ 90))
+            evolution_image = pg.transform.scale(evolution_image,(40,40))
+            screen.blit(evolution_image,(button_area_x+350,button_area_y+70))
+        else:
+            evolution_text = font_small.render(f"Evolution max", True, (0, 0, 0))
+            screen.blit(evolution_text, (button_area_x + 85,button_area_y+ 90))
+        attack_surf = font.render(f"Attack:{attack}     Defense:{defense}", True, (0, 0, 0))
+        screen.blit(attack_surf, (button_area_x + 85,button_area_y+ 150))
+        
 
         #HP條
-        
         hp_bar_width = 140
         hp_bar_height = 15
         hp_x =button_area_x+ 85
-        hp_y =button_area_y+ 32
+        hp_y =button_area_y+120
+        hp_text = font.render(f"Hp:", True, (0, 0, 0))
+        screen.blit(hp_text, (hp_x ,hp_y))
         # 底色
-        pg.draw.rect(screen, (150, 150, 150), (hp_x, hp_y, hp_bar_width, hp_bar_height))
+        pg.draw.rect(screen, (150, 150, 150), (hp_x+50, hp_y+5, hp_bar_width, hp_bar_height))
         # 實際 HP
         hp_ratio = max(hp / max_hp, 0)
         if hp/max_hp>=0.7:
-            pg.draw.rect(screen, (100, 255, 100), (hp_x, hp_y, int(hp_bar_width * hp_ratio), hp_bar_height))
+            pg.draw.rect(screen, (100, 255, 100), (hp_x+50, hp_y+5, int(hp_bar_width * hp_ratio), hp_bar_height))
         elif hp/max_hp>=0.3:
-            pg.draw.rect(screen, (255, 165, 0), (hp_x, hp_y, int(hp_bar_width * hp_ratio), hp_bar_height))
+            pg.draw.rect(screen, (255, 165, 0), (hp_x+50, hp_y+5, int(hp_bar_width * hp_ratio), hp_bar_height))
         else:
-            pg.draw.rect(screen, (255, 50, 50), (hp_x, hp_y, int(hp_bar_width * hp_ratio), hp_bar_height))
-        pg.draw.rect(screen, (0, 0, 0), (hp_x, hp_y,hp_bar_width, hp_bar_height), 2)
+            pg.draw.rect(screen, (255, 50, 50), (hp_x+50, hp_y+5, int(hp_bar_width * hp_ratio), hp_bar_height))
+        pg.draw.rect(screen, (0, 0, 0), (hp_x+50, hp_y+5,hp_bar_width, hp_bar_height), 2)
         # 數字顯示
         hp_text = font.render(f"{hp}/{max_hp}", True, (0, 0, 0))
-        screen.blit(hp_text, (hp_x + hp_bar_width + 5, hp_y))
+        screen.blit(hp_text, (hp_x + hp_bar_width+60,hp_y))
+        
         
     def draw_items_area(self,screen: pg.Surface):
         px = GameSettings.SCREEN_WIDTH // 2
         py = GameSettings.SCREEN_HEIGHT // 2
-        start = -115
+        start = -200
         font_small = pg.font.Font(None, 28)
         
         for item in self.usable_items:
@@ -332,10 +333,29 @@ class UpdateScene(Scene):
                 i=1
             else:
                 i=2
+                
+            item_x = px + 250
+            item_y = py + start + i * 80
+            item_w = 300
+            item_h = 70
+            
+            if item == self.selected_item:
+                highlight = pg.Surface((item_w, item_h), pg.SRCALPHA)
+                highlight.fill((255, 220, 100, 120))  # 黃色半透明
+                screen.blit(highlight, (item_x, item_y))
+
+                # 外框
+                pg.draw.rect(
+                    screen,
+                    (255, 180, 0),
+                    (item_x , item_y , item_w, item_h),
+                    3
+                )
+
             image_path=ASSET+image_path
             i_image = pg.image.load(image_path).convert_alpha()
             i_image = pg.transform.scale(i_image, (40, 40))
-            screen.blit(i_image, (px + 250+20, py  + start+10+ i*80))
+            screen.blit(i_image, (px + 250+20, py+start+10+i*80))
                 
             i_text = font_small.render(f"{i+1}. {name} x{count}", True, (0, 0, 0))
             screen.blit(i_text, (px + 250+70, py  + start+20+ i*80))
@@ -346,26 +366,20 @@ class UpdateScene(Scene):
         py = GameSettings.SCREEN_HEIGHT // 2
         self.background.draw(screen)
         
-        
-        
-        
-        
-        
         for button in self.monsters_buttons:
             button.draw(screen)
         for button in self.items_buttons:
             button.draw(screen)
-        self.use_button.draw(screen)
-        self.back_button.draw(screen)
-        
-        
+            
         self.draw_midle_area(screen)
         self.draw_monster_area(screen)
         self.draw_items_area(screen)
+        self.use_button.draw(screen)
+        self.back_button.draw(screen)
             
         #use文字
         use_text = self.font.render(f"use", True, (0, 0, 0))
-        screen.blit(use_text, (px-50+5, py+120+5))
+        screen.blit(use_text, (px-40+15, py+100+10))
             
         #提示字
         if self.msg:

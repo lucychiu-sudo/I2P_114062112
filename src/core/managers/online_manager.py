@@ -202,6 +202,7 @@ class OnlineManager:
 
                             # HINT: This part might be helpful for direction change
                             # Maybe you can add other parameters?
+                            #多傳direction、is_moving
                             filtered.append({
                                 "id": pid,
                                 "x": float(player_data.get("x", 0)),
@@ -251,6 +252,7 @@ class OnlineManager:
                     if latest_update and self.player_id >= 0:
                         # HINT: This part might be helpful for direction change
                         # Maybe you can add other parameters? 
+                        #多傳direction、is_moving
                         message = {
                             "type": "player_update",
                             "x": latest_update.get("x"),

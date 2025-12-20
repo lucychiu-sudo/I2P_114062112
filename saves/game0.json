@@ -14,8 +14,23 @@
           "destination": "home.tmx"
         },
         {
-          "x": 54,
-          "y": 14,
+          "x": 42,
+          "y": 28,
+          "destination": "god.tmx"
+        },
+        {
+          "x": 43,
+          "y": 28,
+          "destination": "god.tmx"
+        },
+        {
+          "x": 42,
+          "y": 27,
+          "destination": "god.tmx"
+        },
+        {
+          "x": 43,
+          "y": 27,
           "destination": "god.tmx"
         }
       ],
@@ -112,8 +127,8 @@
         }
       ],
       "player": {
-        "x": 12,
-        "y": 13
+        "x": 12.0,
+        "y": 14.0
       },
       "enemy_trainers": [],
       "shop_npc": []
@@ -137,8 +152,8 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 16.0,
-    "y": 30.0
+    "x": 27.61834661050729,
+    "y": 30.117270215753987
   },
   "bag": {
     "monsters": [
@@ -171,6 +186,16 @@
         "defense": 9,
         "element": "grass",
         "sprite_path": "menu_sprites/menusprite3.png"
+      },
+      {
+        "name": "Gengar",
+        "hp": 140,
+        "max_hp": 140,
+        "level": 21,
+        "attack": 20,
+        "defense": 5,
+        "element": "grass",
+        "sprite_path": "menu_sprites/menusprite5.png"
       }
     ],
     "items": [
@@ -200,7 +225,7 @@
       },
       {
         "name": "Pokeball",
-        "count": 10,
+        "count": 9,
         "price": 50,
         "sprite_path": "ingame_ui/ball.png"
       }

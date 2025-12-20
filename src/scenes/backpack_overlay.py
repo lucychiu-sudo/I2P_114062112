@@ -27,8 +27,8 @@ class BackpackOverlay(Scene):
 
         #返回按鈕
         self.back_button = Button(
-            "UI/button_back.png", 
-            "UI/button_back_hover.png",
+            "UI/button_x.png", 
+            "UI/button_x_hover.png",
             px+300, py -210,    
             60, 60,
             lambda: self.hide()  
